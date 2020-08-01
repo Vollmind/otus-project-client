@@ -1,0 +1,12 @@
+{% extends "client_app/main.html" %}
+
+{% block title %} Tag-o-mancer login {% endblock %}
+
+{% block content %}
+    <form action="{% url 'login' %}" method="post">
+        {% csrf_token %}
+        {{ form }}
+        <button type="submit">Login</button>
+    </form>
+    <p>{{ error_text }}</p>
+{% endblock %}

@@ -1,0 +1,29 @@
+{% extends "client_app/main.html" %}
+
+{% block title %} Tag-o-mancer storage {% endblock %}
+
+{% block content %}
+    {% for storage in object_list %}
+        <div>
+            <span>{{ storage.path }}</span>
+            <button onclick="document.location='{% url 'hide_show_storage' storage.id %}'">
+                {% if storage.hidden %}
+                    Show
+                {% else %}
+                    Hide
+                {% endif %}
+            </button>
+            <button onclick="document.location='{% url 'delete_storage' storage.id %}'">
+                Delete
+            </button>
+        </div>
+    {% endfor %}
+    <form action="{% url 'add_storage' %}" method="post">
+        {% csrf_token %}
+        {{ add_form }}
+        <button type="submit">Add</button>
+    </form>
+    <button onclick="document.location='{% url 'refresh_storage_files' %}'">
+        Refresh
+    </button>
+{% endblock %}

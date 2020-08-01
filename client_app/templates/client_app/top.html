@@ -1,0 +1,25 @@
+<button class="invisible nowidth" onclick="document.location='{% url 'main_page' %}'">
+    <p class="top">Tag-o-mancer</p>
+</button>
+<table style="float: right; margin: 5px">
+    <tr>
+        <td rowspan="2">
+            <p>
+                Status:
+                {% if is_online == '1' %}
+                    <span style="color: green">Online</span>
+                {% else %}
+                    <span style="color: red">Offline</span>
+                {% endif %}
+            </p>
+        </td>
+        <td>
+            <p>{{ login }}</p>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <button onclick="document.location='{% url "login" %}'" class="login">Re-login</button>
+        </td>
+    </tr>
+</table>

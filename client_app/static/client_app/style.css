@@ -1,0 +1,120 @@
+tr.bottom_border > td {
+    border-bottom: lightgray 1px solid;
+    padding: 10px;
+}
+
+p {
+    /*text-align: center;*/
+}
+p.shrink {
+    margin: 0;
+    text-align: center;
+    font-weight: bold;
+}
+.user {
+    font-weight: bold;
+    padding: 0 5px;
+    vertical-align: top;
+    font-size: 16px;
+    font-family: "DejaVu Serif", serif;
+}
+span {
+    text-align: left;
+}
+span.header {
+    font-size: 30px;
+    font-family: "DejaVu Serif", serif;
+    font-weight: bold;
+}
+span.gray {
+    color: lightgray;
+}
+th {
+    text-align: right;
+}
+label {
+    margin: 0 5px;
+}
+
+img.avatar {
+    width: 32px;
+    height: 32px;
+}
+img.big_avatar {
+    width: 64px;
+    height: 64px;
+}
+
+a.question {
+    font-size: 20px;
+    text-align: center;
+    display: block;
+}
+p.top {
+    font-size: 40px;
+    text-align: center;
+    margin: 20px;
+}
+
+path {
+    fill: transparent;
+    stroke: black;
+    stroke-width: 3;
+}
+path.selected {
+    stroke: cadetblue;
+}
+path.green {
+    stroke: green;
+    stroke-width: 5px;
+}
+
+button {
+    margin: 6px;
+    padding: 3px;
+    width: 100px;
+    border: transparent;
+    background: lightgray;
+}
+button.invisible {
+    border: none;
+    background: none;
+    padding: 0;
+    margin: 0;
+    outline: none;
+    width: 34px;
+    cursor: pointer;
+}
+button.login {
+    background: cadetblue;
+}
+button.nowidth {
+    width: auto;
+}
+button.tag {
+    padding: 3px;
+    margin: 3px;
+    background: cadetblue;
+}
+button.big_plate {
+    width: 256px;
+    height: 256px;
+}
+span.tag {
+    padding: 3px;
+    margin: 3px;
+    background: cadetblue;
+}
+
+
+a:link {
+    color: black;
+    text-decoration: none;
+    font-weight: bold;
+    text-align: left;
+}
+
+a:visited {
+    color: black;
+    text-decoration: none;
+}

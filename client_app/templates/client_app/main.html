@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Tag-o-mancer{% endblock %}</title>
+</head>
+
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static 'client_app/style.css' %}">
+
+<body>
+<table width="1280">
+    <tr class="bottom_border">
+        <td style="width: 200px; vertical-align: top; border-left: 1px lightgray solid">{% include "client_app/top.html" %}</td>
+    </tr>
+    <tr>
+        <td>
+            {% block content %} Content {% endblock %}
+        </td>
+    </tr>
+</table>
+</body>
+</html>

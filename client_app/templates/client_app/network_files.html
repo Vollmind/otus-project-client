@@ -1,0 +1,41 @@
+{% extends "client_app/main.html" %}
+
+{% block title %} Tag-o-mancer local files {% endblock %}
+
+{% block content %}
+    <div>
+        <input id="search_text" type="text" placeholder="search..." value="{{ request.GET.search }}">
+        <button onclick="document.location='{% url 'network_files' %}?search=' + document.getElementById('search_text').value">
+            Search
+        </button>
+    </div>
+    {% for file in object_list %}
+        <table>
+            <tr>
+                <td>
+                    <span>{{ file.name }}</span>
+                </td>
+                <td rowspan="2">
+                    <button onclick="document.location='{% url 'hide_show_file' file.id %}'">
+                        {% if file.hidden %}
+                            Show
+                        {% else %}
+                            Hide
+                        {% endif %}
+                    </button>
+                    <button onclick="document.location='{% url 'download_file' file.id %}'">
+                        Download
+                    </button>
+                    <button onclick="document.location='{% url 'download_file' file.id %}'">
+                        Load to client
+                    </button>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <span>{{ file.path }}</span>
+                </td>
+            </tr>
+        </table>
+    {% endfor %}
+{% endblock %}

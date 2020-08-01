@@ -1,0 +1,15 @@
+{% extends "client_app/main.html" %}
+
+{% block title %} Tag-o-mancer {% endblock %}
+
+{% block content %}
+    <button class="big_plate" onclick="document.location='{% url "storage" %}'">
+        Storage
+    </button>
+    <button class="big_plate" onclick="document.location='{% url "local_files" %}'">
+        Search here
+    </button>
+    <button class="big_plate" onclick="document.location='{% url "storage" %}'">
+        Search in network
+    </button>
+{% endblock %}
