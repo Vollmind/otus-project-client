@@ -17,10 +17,10 @@
                     <span>{{ file.name }}</span>
                 </td>
                 <td>
-                    <button onclick="document.location='{% url 'download_file' file.id %}'">
+                    <button onclick="document.location='{% url 'get_outer' %}?ip=' + {{ file.url }} + '&name=' + {{ file.name }} + '&file_hash=' + {{ file.file_hash }}">
                         Download
                     </button>
-                    <button onclick="document.location='{% url 'download_file' file.id %}'">
+                    <button onclick="document.location='{% url 'load_outer' %}?ip=' + {{ file.url }} + '&name=' + {{ file.name }} + '&file_hash=' + {{ file.file_hash }}">
                         Load to client
                     </button>
                 </td>

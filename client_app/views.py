@@ -204,8 +204,10 @@ def get_outer_storage_file_info(search_str):
         if client_response.status_code == 200:
             for file in client_response.json()['files']:
                 found_file = OuterFileSerializer(data=file)
-                found_file.url = client['address']
-                found_files.append(found_file)
+                if found_file.is_valid():
+                    result_dict = found_file.data
+                    result_dict['url'] = client['address']
+                    found_files.append(result_dict)
     if not found_files:
         return [], 'No files found!'
     return found_files, ''
@@ -217,7 +219,7 @@ def search_file(request):
         return HttpResponseServerError('Cannot find parameter "search_str"')
     return_files = []
     for file in File.objects.filter(name__contains=request.GET['search_str']):
-        return_files.append(OuterFileSerializer(file))
+        return_files.append(OuterFileSerializer(file).data)
     return Response({
         'files': return_files
     })
@@ -236,3 +238,44 @@ def search_outer_files(request):
         'client_app/outer_files.html',
         {'files_list': files_list, 'error_text': error}
     )
+
+
+@api_view(['GET'])
+def get_file_to_outer(request):
+    if 'name' not in request.GET or 'file_hash' not in request.GET:
+        return HttpResponseServerError('Required fields "name" and "file_hash" are empty')
+
+    file = File.objects.get_object_or_404(name=request.GET['name'], file_hash=request.GET['file_hash'])
+    fl = open(file.path, 'rb')
+    response = HttpResponse(fl)
+    return response
+
+
+def load_file_from_outer(ip, name, file_hash):
+    response = requests.get(
+        f'http://{ip}:{CLIENT_PORT}/getfile',
+        params={'name': name, 'hash': file_hash},
+        stream=True
+    )
+    if response.status_code != 200:
+        return b'', f'Error while downloading file: {response.status_code}'
+    return response.raw, ''
+
+
+def load_file_and_store(request):
+    raw_resp, _ = load_file_from_outer(request.GET['ip'], request.GET['name'], request.GET['file_hash'])
+    with open(request.GET['name'], 'wb') as f:
+        file_part = raw_resp.read(1024)
+        while file_part:
+            f.write(file_part)
+            file_part = raw_resp.read(1024)
+    return redirect('local_files')
+
+
+def load_file_and_return(request):
+    raw_resp, _ = load_file_from_outer(request.GET['ip'], request.GET['name'], request.GET['file_hash'])
+    mime_type, _ = mimetypes.guess_type(request.GET['name'])
+
+    response = HttpResponse(raw_resp, content_type=mime_type)
+    response['Content-Disposition'] = f"attachment; filename={request.GET['name']}"
+    return response

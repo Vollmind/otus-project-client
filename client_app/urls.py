@@ -16,5 +16,8 @@ urlpatterns = [
     path('local/<int:file_id>/download', views.download_file, name='download_file'),
 
     path('search', views.search_file, name='search_file'),
-    path('outer', views.search_outer_files, name='outer_files')
+    path('outer', views.search_outer_files, name='outer_files'),
+    path('getfile', views.get_file_to_outer, name='getfile'),
+    path('outer/load', views.load_file_and_store, name='load_outer'),
+    path('outer/get', views.load_file_and_return, name='get_outer'),
 ]
