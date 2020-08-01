@@ -186,18 +186,12 @@ def get_outer_storage_file_info(search_str):
     token = get_setting('token')
     my_user = get_setting('login')
     if not server or not token:
-        return {
-            'errors': 'Try to log in first'
-        }
+        return [], 'Try to log in first'
     response = requests.get(f'http://{server}:{SERVER_PORT}/online', headers={'Authorization': f'TOKEN {token}'})
     if response.status_code != 200:
-        return {
-            'errors': f'Error connecting to server: {response.status_code}'
-        }
+        return [], f'Error connecting to server: {response.status_code}'
     if not response.json() or 'available' not in response.json():
-        return {
-            'errors': f'Server returned empty response.'
-        }
+        return [], f'Server returned empty response.'
     found_files = []
     for client in response.json()['available']:
         if client['user'] == my_user:
@@ -212,7 +206,9 @@ def get_outer_storage_file_info(search_str):
                 found_file = OuterFileSerializer(data=file)
                 found_file.url = client['address']
                 found_files.append(found_file)
-    return found_files
+    if not found_files:
+        return [], 'No files found!'
+    return found_files, ''
 
 
 @api_view(['GET'])
@@ -226,3 +222,17 @@ def search_file(request):
         'files': return_files
     })
 
+
+def search_outer_files(request):
+    if 'search_str' not in request.GET:
+        return render(
+            request,
+            'client_app/outer_files.html',
+            {'files_list': [], 'error_text': ''}
+        )
+    files_list, error = get_outer_storage_file_info(request.GET['search_str'])
+    return render(
+        request,
+        'client_app/outer_files.html',
+        {'files_list': files_list, 'error_text': error}
+    )
