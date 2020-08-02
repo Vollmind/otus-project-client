@@ -3,20 +3,20 @@ import mimetypes
 import os
 
 import requests
+from django.contrib.auth import views as auth_views
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponse, HttpResponseServerError
-from django.shortcuts import redirect, render
-from django.urls import reverse, reverse_lazy
+from django.shortcuts import redirect, render, get_object_or_404
+from django.urls import reverse_lazy
 from django.views import generic
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
-from django.contrib.auth import views as auth_views
 from client.settings import SERVER_PORT, CLIENT_PORT, MEDIA_ROOT
 from client_app.forms import StorageForm, LoginForm
 from client_app.helper import save_setting, get_setting
-from client_app.models import Storage, File, Settings
+from client_app.models import Storage, File
 from client_app.serializers import OuterFileSerializer
 
 
@@ -278,7 +278,7 @@ def get_file_to_outer(request):
     if 'name' not in request.GET or 'file_hash' not in request.GET:
         return HttpResponseServerError('Required fields "name" and "file_hash" are empty')
 
-    file = File.objects.get_object_or_404(name=request.GET['name'], file_hash=request.GET['file_hash'])
+    file = get_object_or_404(File, name=request.GET['name'], file_hash=request.GET['file_hash'])
     fl = open(file.path, 'rb')
     response = HttpResponse(fl)
     return response
