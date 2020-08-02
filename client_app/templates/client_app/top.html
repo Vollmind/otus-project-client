@@ -23,7 +23,7 @@
                     </tr>
                     <tr>
                         <td>
-                            <span>{{ login }}</span>
+                            <span>{% if login %} {{ login }} {% endif %}</span>
                         </td>
                         <td>
                             <button onclick="document.location='{% url "login" %}'" class="login" style="">Server
