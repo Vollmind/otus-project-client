@@ -3,27 +3,53 @@
 {% block title %} Tag-o-mancer storage {% endblock %}
 
 {% block content %}
-    {% for storage in object_list %}
-        <div>
-            <span>{{ storage.path }}</span>
-            <button onclick="document.location='{% url 'hide_show_storage' storage.id %}'">
-                {% if storage.hidden %}
-                    Show
-                {% else %}
-                    Hide
-                {% endif %}
-            </button>
-            <button onclick="document.location='{% url 'delete_storage' storage.id %}'">
-                Delete
-            </button>
-        </div>
-    {% endfor %}
-    <form action="{% url 'add_storage' %}" method="post">
-        {% csrf_token %}
-        {{ add_form }}
-        <button type="submit">Add</button>
-    </form>
-    <button onclick="document.location='{% url 'refresh_storage_files' %}'">
-        Refresh
-    </button>
+    <table width="100%">
+        <tr>
+            <td>
+                <button class="login" onclick="document.location='{% url 'refresh_storage_files' %}'">
+                    Check files in storages
+                </button>
+            </td>
+        </tr>
+
+        {% for storage in object_list %}
+            <tr class="bubble {% if storage.hidden %} hidden {% endif %}">
+                <td width="100%">
+                    <span>{{ storage.path }}</span>
+                </td>
+                <td>
+                    <button onclick="document.location='{% url 'hide_show_storage' storage.id %}'">
+                        {% if storage.hidden %}
+                            Show
+                        {% else %}
+                            Hide
+                        {% endif %}
+                    </button>
+                </td>
+                <td>
+                    <button onclick="document.location='{% url 'delete_storage' storage.id %}'">
+                        Delete
+                    </button>
+                </td>
+            </tr>
+        {% endfor %}
+        <tr>
+            <td colspan="3">
+                <div style="float: right">
+                    {% include 'client_app/pagination.html' %}
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <form action="{% url 'add_storage' %}" method="post">
+                    {% csrf_token %}
+                    <table>
+                        {{ add_form }}
+                    </table>
+                    <button type="submit">Add</button>
+                </form>
+            </td>
+        </tr>
+    </table>
 {% endblock %}

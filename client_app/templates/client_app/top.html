@@ -1,25 +1,72 @@
-<button class="invisible nowidth" onclick="document.location='{% url 'main_page' %}'">
-    <p class="top">Tag-o-mancer</p>
-</button>
-<table style="float: right; margin: 5px">
+<table style="table-layout: fixed; height: 100%">
     <tr>
-        <td rowspan="2">
-            <p>
-                Status:
-                {% if is_online == '1' %}
-                    <span style="color: green">Online</span>
-                {% else %}
-                    <span style="color: red">Offline</span>
-                {% endif %}
-            </p>
+        <td style="width: 100%">
+            <button class="invisible nowidth" style="vertical-align: center"
+                    onclick="document.location='{% url 'main_page' %}'">
+                <p class="top">Tag-o-mancer</p>
+            </button>
         </td>
         <td>
-            <p>{{ login }}</p>
+            <div class="bubble">
+                <table>
+                    <tr>
+                        <td colspan="2">
+                            <p style="white-space: nowrap">
+                                Status:
+                                {% if is_online == '1' %}
+                                    <span style="color: green">Online</span>
+                                {% else %}
+                                    <span style="color: red">Offline</span>
+                                {% endif %}
+                            </p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <span>{{ login }}</span>
+                        </td>
+                        <td>
+                            <button onclick="document.location='{% url "login" %}'" class="login" style="">Server
+                                settings
+                            </button>
+                        </td>
+                    </tr>
+                </table>
+            </div>
         </td>
-    </tr>
-    <tr>
         <td>
-            <button onclick="document.location='{% url "login" %}'" class="login">Re-login</button>
+            <div class="bubble">
+                <table>
+                    <tr>
+                        <td colspan="2">
+                            <p style="white-space: nowrap">
+                                {% if user.is_authenticated %}
+                                    {{ user.username }}
+                                {% else %}
+                                    <span style="color: red">Not logged in</span>
+                                {% endif %}
+                                &nbsp;
+                            </p>
+                        </td>
+                    </tr>
+                    <tr>
+                        {% if user.is_authenticated %}
+                            <td>
+                                <button onclick="document.location='{% url "changepass" %}'" class="login">Change
+                                    password
+                                </button>
+                            </td>
+                            <td>
+                                <button onclick="document.location='{% url "logout" %}'" class="login">Logout</button>
+                            </td>
+                        {% else %}
+                            <td>
+                            <button onclick="document.location='{% url "auth" %}'" class="login">Login</button>
+                            </td>
+                        {% endif %}
+                    </tr>
+                </table>
+            </div>
         </td>
     </tr>
 </table>

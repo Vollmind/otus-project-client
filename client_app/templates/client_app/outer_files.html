@@ -8,31 +8,39 @@
         <button onclick="document.location='{% url 'outer_files' %}?search_str=' + document.getElementById('search_text').value">
             Search
         </button>
-    <p>{{ error_text }}</p>
+        <p>{{ error_text }}</p>
     </div>
-    {% for file in files_list %}
-        <table>
-            <tr>
+    <table width="100%">
+        {% for file in files_list %}
+            <tr class="bubble">
                 <td>
-                    <span>{{ file.name }}</span>
-                </td>
-                <td>
-                    <button onclick="document.location='{% url 'get_outer' %}?ip=' + {{ file.url }} + '&name=' + {{ file.name }} + '&file_hash=' + {{ file.file_hash }}">
-                        Download
-                    </button>
-                    <button onclick="document.location='{% url 'load_outer' %}?ip=' + {{ file.url }} + '&name=' + {{ file.name }} + '&file_hash=' + {{ file.file_hash }}">
-                        Load to client
-                    </button>
+                    <table>
+                        <tr>
+                            <td width="100%">
+                                <span>{{ file.name }}</span>
+                            </td>
+                            <td>
+                                <button onclick="document.location='{% url 'get_outer' %}?ip={{ file.url }}&name={{ file.name }}&file_hash={{ file.file_hash }}'">
+                                    Download
+                                </button>
+                            </td>
+                            <td>
+                                <button onclick="document.location='{% url 'load_outer' %}?ip={{ file.url }}&name={{ file.name }}&file_hash={{ file.file_hash }}'">
+                                    Load to client
+                                </button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td width="100%">
+                                <span>{{ file.url }}</span>
+                            </td>
+                            <td>
+                                <span>{{ file.size|sizify }}</span>
+                            </td>
+                        </tr>
+                    </table>
                 </td>
             </tr>
-            <tr>
-                <td>
-                    <span>{{ file.path }}</span>
-                </td>
-                <td>
-                    <span>{{ file.size|sizify }}</span>
-                </td>
-            </tr>
-        </table>
-    {% endfor %}
+        {% endfor %}
+    </table>
 {% endblock %}

@@ -9,33 +9,48 @@
             Search
         </button>
     </div>
-    {% for file in object_list %}
-        <table>
-            <tr>
+    <table width="100%">
+        {% for file in object_list %}
+            <tr class="bubble {% if file.hidden %} hidden {% endif %}">
                 <td>
-                    <span>{{ file.name }}</span>
-                </td>
-                <td>
-                    <button onclick="document.location='{% url 'hide_show_file' file.id %}'">
-                        {% if file.hidden %}
-                            Show
-                        {% else %}
-                            Hide
-                        {% endif %}
-                    </button>
-                    <button onclick="document.location='{% url 'download_file' file.id %}'">
-                        Download
-                    </button>
+                    <table>
+                        <tr>
+                            <td style="width: 100%">
+                                <span>{{ file.name }}</span>
+                            </td>
+                            <td>
+                                <button onclick="document.location='{% url 'hide_show_file' file.id %}'">
+                                    {% if file.hidden %}
+                                        Show
+                                    {% else %}
+                                        Hide
+                                    {% endif %}
+                                </button>
+                            </td>
+                            <td>
+                                <button onclick="document.location='{% url 'download_file' file.id %}'">
+                                    Download
+                                </button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="width: 100%">
+                                <span>{{ file.path }}</span>
+                            </td>
+                            <td>
+                                <span>{{ file.size|sizify }}</span>
+                            </td>
+                        </tr>
+                    </table>
                 </td>
             </tr>
-            <tr>
-                <td>
-                    <span>{{ file.path }}</span>
-                </td>
-                <td>
-                    <span>{{ file.size|sizify }}</span>
-                </td>
-            </tr>
-        </table>
-    {% endfor %}
+        {% endfor %}
+        <tr>
+            <td colspan="3">
+                <div style="float: right">
+                    {% include 'client_app/pagination.html' %}
+                </div>
+            </td>
+        </tr>
+    </table>
 {% endblock %}

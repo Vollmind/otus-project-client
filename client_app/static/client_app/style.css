@@ -2,9 +2,38 @@ tr.bottom_border > td {
     border-bottom: lightgray 1px solid;
     padding: 10px;
 }
+div.bubble {
+    border: lightgray solid 1px;
+    border-radius: 5px;
+    margin: 3px;
+    padding: 3px;
+}
+
+table{
+    border-spacing: 0 5px;
+}
+table tr.bubble > td:last-child {
+    border-bottom-right-radius: 5px;
+    border-top-right-radius: 5px;
+    border-right: lightgray solid 1px;
+}
+table tr.bubble > td:first-child {
+    border-bottom-left-radius: 5px;
+    border-top-left-radius: 5px;
+    border-left: lightgray solid 1px;
+}
+table tr.bubble > td{
+    border-bottom: lightgray solid 1px;
+    border-top: lightgray solid 1px;
+    margin:3px;
+    padding:3px;
+}
+table tr.hidden {
+    color: darkgray;
+}
 
 p {
-    /*text-align: center;*/
+    text-align: center;
 }
 p.shrink {
     margin: 0;
@@ -19,7 +48,8 @@ p.shrink {
     font-family: "DejaVu Serif", serif;
 }
 span {
-    text-align: left;
+    text-align: center;
+    vertical-align: center;
 }
 span.header {
     font-size: 30px;
@@ -87,6 +117,7 @@ button.invisible {
 }
 button.login {
     background: cadetblue;
+    height: 40px;
 }
 button.nowidth {
     width: auto;

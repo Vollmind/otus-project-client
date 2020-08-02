@@ -1,12 +1,24 @@
 {% extends "client_app/main.html" %}
 
-{% block title %} Tag-o-mancer login {% endblock %}
+{% block title %} Tag-o-mancer server settings {% endblock %}
 
 {% block content %}
-    <form action="{% url 'login' %}" method="post">
-        {% csrf_token %}
-        {{ form }}
-        <button type="submit">Login</button>
-    </form>
-    <p>{{ error_text }}</p>
+    <table>
+        <tr>
+            <td>
+                <form action="{% url 'login' %}" method="post">
+                    {% csrf_token %}
+                    <table>
+                        {{ form }}
+                    </table>
+                    <button type="submit">Login</button>
+                </form>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <p>{{ error_text }}</p>
+            </td>
+        </tr>
+    </table>
 {% endblock %}

@@ -1,0 +1,18 @@
+{% extends "client_app/main.html" %}
+
+{% block title %} Logout {% endblock%}
+{% block content %}
+    <form action="{% url 'auth' %}" method="post">
+        {% csrf_token %}
+        <table width="100%">
+            {{ form }}
+            <tr>
+                <td></td>
+                <td>
+                    <button type="submit" style="margin: 10px 0; float: top">Log in</button>
+                </td>
+            </tr>
+        </table>
+        <input type="hidden" name="next" value="{% url 'main_page' %}">
+    </form>
+{% endblock %}

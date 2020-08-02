@@ -3,13 +3,17 @@ import mimetypes
 import os
 
 import requests
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponse, HttpResponseServerError
 from django.shortcuts import redirect, render
+from django.urls import reverse, reverse_lazy
 from django.views import generic
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
-from client.settings import SERVER_PORT, CLIENT_PORT
+from django.contrib.auth import views as auth_views
+from client.settings import SERVER_PORT, CLIENT_PORT, MEDIA_ROOT
 from client_app.forms import StorageForm, LoginForm
 from client_app.helper import save_setting, get_setting
 from client_app.models import Storage, File, Settings
@@ -38,9 +42,10 @@ class ListViewWithLoginInfo(generic.ListView):
         return context
 
 
-class StorageView(ListViewWithLoginInfo):
+class StorageView(LoginRequiredMixin, ListViewWithLoginInfo):
     queryset = Storage.objects.all()
     ordering = ['date']
+    paginate_by = 10
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
@@ -48,24 +53,11 @@ class StorageView(ListViewWithLoginInfo):
         return context
 
 
+@login_required()
 def hide_show_storage(request, storage_id):
     storage = Storage.objects.filter(id=storage_id).get()
     storage.hidden = not storage.hidden
     storage.save()
-    return redirect('storage')
-
-
-def add_storage(request):
-    if request.method == 'POST':
-        form = StorageForm(request.POST)
-        if form.is_valid():
-            form.save()
-    return redirect('storage')
-
-
-def delete_storage(request, storage_id):
-    storage = Storage.objects.filter(id=storage_id).get()
-    storage.delete()
     return redirect('storage')
 
 
@@ -80,9 +72,16 @@ def get_all_files(path):
     return result
 
 
+@login_required()
 def refresh_storage_files(request):
+    # check if we have MEDIA in storages
+    if not Storage.objects.filter(path=MEDIA_ROOT):
+        Storage.objects.create(path=MEDIA_ROOT)
+
     for storage in Storage.objects.all():
         for file in get_all_files(storage.path):
+            if File.objects.filter(path=file).exists():
+                continue
             file_obj, _ = File.objects.get_or_create(path=file, storage=storage)
             file_obj.name = os.path.basename(file)
             file_obj.size = os.path.getsize(file)
@@ -95,7 +94,25 @@ def refresh_storage_files(request):
     return redirect('storage')
 
 
-def login(request):
+@login_required()
+def add_storage(request):
+    if request.method == 'POST':
+        form = StorageForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return refresh_storage_files(request)
+    return redirect('storage')
+
+
+@login_required()
+def delete_storage(request, storage_id):
+    storage = Storage.objects.filter(id=storage_id).get()
+    storage.delete()
+    return refresh_storage_files(request)
+
+
+@login_required()
+def login_on_server(request):
     if request.method == 'POST':
         form = LoginForm(request.POST)
         if form.is_valid():
@@ -118,7 +135,8 @@ def login(request):
                         'client_app/login.html',
                         {
                             'form': form,
-                            'error_text': f'Wrong answer from {form.cleaned_data["server"]} : {response.status_code}'
+                            'error_text': f'Wrong answer from {form.cleaned_data["server"]} : {response.status_code}',
+                            **get_login_info()
                         }
                     )
                 return redirect('storage')
@@ -128,7 +146,8 @@ def login(request):
                     'client_app/login.html',
                     {
                         'form': form,
-                        'error_text': f'Cannot connect to {form.cleaned_data["server"]}'
+                        'error_text': f'Cannot connect to {form.cleaned_data["server"]}',
+                        **get_login_info()
                     }
                 )
     else:
@@ -138,15 +157,17 @@ def login(request):
         'client_app/login.html',
         {
             'form': form,
+            **get_login_info()
         }
     )
 
 
 # Inner storage
-class LocalFiles(ListViewWithLoginInfo):
+class LocalFiles(LoginRequiredMixin, ListViewWithLoginInfo):
     queryset = File.objects.all()
     template_name = 'client_app/local_files.html'
     paginate_by = 10
+    ordering = ['name']
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
@@ -162,6 +183,7 @@ class LocalFiles(ListViewWithLoginInfo):
         return super().get_queryset()
 
 
+@login_required()
 def hide_show_file(request, file_id):
     file = File.objects.filter(id=file_id).get()
     file.hidden = not file.hidden
@@ -169,6 +191,7 @@ def hide_show_file(request, file_id):
     return redirect('local_files')
 
 
+@login_required()
 def download_file(request, file_id):
     file = File.objects.get(id=file_id)
     mime_type, _ = mimetypes.guess_type(file.path)
@@ -218,25 +241,35 @@ def search_file(request):
     if 'search_str' not in request.GET:
         return HttpResponseServerError('Cannot find parameter "search_str"')
     return_files = []
-    for file in File.objects.filter(name__contains=request.GET['search_str']):
+    files_queryset = (
+        File
+        .objects
+        .filter(
+            name__contains=request.GET['search_str'],
+            hidden=False,
+            storage__hidden=False
+        )
+    )
+    for file in files_queryset:
         return_files.append(OuterFileSerializer(file).data)
     return Response({
         'files': return_files
     })
 
 
+@login_required()
 def search_outer_files(request):
     if 'search_str' not in request.GET:
         return render(
             request,
             'client_app/outer_files.html',
-            {'files_list': [], 'error_text': ''}
+            {'files_list': [], 'error_text': '', **get_login_info()}
         )
     files_list, error = get_outer_storage_file_info(request.GET['search_str'])
     return render(
         request,
         'client_app/outer_files.html',
-        {'files_list': files_list, 'error_text': error}
+        {'files_list': files_list, 'error_text': error, **get_login_info()}
     )
 
 
@@ -254,24 +287,33 @@ def get_file_to_outer(request):
 def load_file_from_outer(ip, name, file_hash):
     response = requests.get(
         f'http://{ip}:{CLIENT_PORT}/getfile',
-        params={'name': name, 'hash': file_hash},
+        params={'name': name, 'file_hash': file_hash},
         stream=True
     )
     if response.status_code != 200:
         return b'', f'Error while downloading file: {response.status_code}'
-    return response.raw, ''
+    return response, ''
 
 
+@login_required()
 def load_file_and_store(request):
     raw_resp, _ = load_file_from_outer(request.GET['ip'], request.GET['name'], request.GET['file_hash'])
-    with open(request.GET['name'], 'wb') as f:
-        file_part = raw_resp.read(1024)
-        while file_part:
-            f.write(file_part)
-            file_part = raw_resp.read(1024)
+    full_path = os.path.join(MEDIA_ROOT, request.GET['name'])
+    with open(full_path, 'wb') as f:
+        for chunk in raw_resp.iter_content(chunk_size=1024):
+            f.write(chunk)
+
+    file_obj, _ = File.objects.get_or_create(path=full_path, storage=Storage.objects.get(path=MEDIA_ROOT))
+    file_obj.name = request.GET['name']
+    file_obj.size = os.path.getsize(full_path)
+    with open(full_path, 'rb') as opened_file:
+        file_obj.file_hash = hashlib.sha256(opened_file.read()).hexdigest()
+    file_obj.save()
+
     return redirect('local_files')
 
 
+@login_required()
 def load_file_and_return(request):
     raw_resp, _ = load_file_from_outer(request.GET['ip'], request.GET['name'], request.GET['file_hash'])
     mime_type, _ = mimetypes.guess_type(request.GET['name'])
@@ -279,3 +321,22 @@ def load_file_and_return(request):
     response = HttpResponse(raw_resp, content_type=mime_type)
     response['Content-Disposition'] = f"attachment; filename={request.GET['name']}"
     return response
+
+
+# Login views
+class OurLoginView(auth_views.LoginView):
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update(**get_login_info())
+        return context
+
+
+class OurChangePassView(auth_views.PasswordChangeView):
+    template_name = 'client_app/change_password.html',
+    success_url = reverse_lazy('logout')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update(**get_login_info())
+        return context

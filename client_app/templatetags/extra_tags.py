@@ -17,3 +17,8 @@ def sizify(value):
 
 
 register.filter('sizify', sizify)
+
+
+@register.simple_tag
+def define(val=None):
+    return val

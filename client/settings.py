@@ -67,7 +67,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
             ],
         },
-    },
+},
 ]
 
 WSGI_APPLICATION = 'client.wsgi.application'
@@ -131,3 +131,5 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 SERVER_PORT = '8030'
 CLIENT_PORT = '8031'
+
+LOGIN_URL = '/auth'

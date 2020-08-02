@@ -13,7 +13,7 @@ class File(models.Model):
     file_hash = models.CharField(max_length=1000)
     storage = models.ForeignKey(Storage, on_delete=models.CASCADE)
     hidden = models.BooleanField(default=False)
-    size = models.IntegerField()
+    size = models.IntegerField(null=True)
 
 
 class Settings(models.Model):
