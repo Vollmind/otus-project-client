@@ -28,7 +28,7 @@ make prod
 
 Для запуска требуется два процесса:
 ```
-python manage.py runserver 8030
+python manage.py runserver 8031
 python manage.py process_tasks
 ```
 
